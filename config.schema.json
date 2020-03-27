@@ -1,0 +1,20 @@
+{
+  "pluginAlias": "button-toggle",
+  "pluginType": "accessory",
+  "singular": false,
+  "headerDisplay": "Button toggle plugin",
+  "footerDisplay": "Plugin which enables you to keep a state for your button.",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "name": {
+        "title": "Name",
+        "type": "string",
+        "default": "Toggler",
+        "required": true
+      }
+    }
+  },
+  "form": null,
+  "display": null
+}
