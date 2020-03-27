@@ -66,7 +66,7 @@ class ToggleSwitch {
     return state ? 'ON' : 'OFF';
   }
 
-  private async setState(turnOn: boolean, callback: () => void) {
+  private setState = async (turnOn: boolean, callback: () => void) => {
     if (turnOn && this.state) {
       this.log('Switch is ON, setting to OFF.');
       setTimeout(() => {
