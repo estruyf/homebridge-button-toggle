@@ -9,10 +9,9 @@ const HOMEBRIDGE_PLATFORM_NAME = "button-toggle";
 let Service: HAPNodeJS.Service;
 let Characteristic: HAPNodeJS.Characteristic;
 let HomebridgeAPI: any;
-let Accessory: any;
 
-module.exports = function (homebridge: Homebridge) {
-  console.log("homebridge API version: " + homebridge.version);
+module.exports = (homebridge: Homebridge) => {
+  console.log(`The ${HOMEBRIDGE_PLUGIN_NAME} plugin version is: ${packageJSON.version}. Installed on Homebridge version: ${homebridge.version}.`);
   // Service and Characteristic are from hap-nodejs
   HomebridgeAPI = homebridge;
   Service = homebridge.hap.Service;
@@ -29,11 +28,19 @@ class ToggleSwitch {
   private storage: typeof persist;
 
   constructor(private log: any, private config: { name: string; }) {
-    console.log(config);
     this.name = this.config.name;
     this.service = new Service.Switch(this.name, null);
     this.init();
   }
+
+  public getServices() {
+    const informationService = new (Service as any).AccessoryInformation();
+    informationService.setCharacteristic(Characteristic.Manufacturer, 'Elio Struyf')
+                      .setCharacteristic(Characteristic.Model, 'Toggle Button')
+                      .setCharacteristic(Characteristic.SerialNumber, 'TBW01')
+                      .setCharacteristic(Characteristic.FirmwareRevision, packageJSON.version);
+    return [informationService, this.service];
+  }  
 
   private async init() {
     this.state = false;
@@ -44,7 +51,7 @@ class ToggleSwitch {
       forgiveParseErrors: true
     });
     
-    this.service.getCharacteristic(Characteristic.On).on('set', this.setState.bind(this));
+    this.service.getCharacteristic(Characteristic.On).on('set', this.setState);
 
     const storedState = await this.storage.getItem(this.name);
     if (storedState) {
@@ -59,8 +66,7 @@ class ToggleSwitch {
     return state ? 'ON' : 'OFF';
   }
 
-  private async setState(turnOn: any, callback: () => void) {
-    console.log(turnOn, this.state);
+  private async setState(turnOn: boolean, callback: () => void) {
     if (turnOn && this.state) {
       this.log('Switch is ON, setting to OFF.');
       setTimeout(() => {
@@ -73,15 +79,6 @@ class ToggleSwitch {
     }
     callback();
   }
-
-  public getServices() {
-    const informationService = new (Service as any).AccessoryInformation();
-    informationService.setCharacteristic(Characteristic.Manufacturer, 'Elio Struyf')
-                      .setCharacteristic(Characteristic.Model, 'Toggle Button')
-                      .setCharacteristic(Characteristic.SerialNumber, 'TBW01')
-                      .setCharacteristic(Characteristic.FirmwareRevision, packageJSON.version);
-    return [informationService, this.service];
-  }  
 }
 
 
