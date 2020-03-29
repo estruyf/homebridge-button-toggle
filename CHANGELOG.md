@@ -1,5 +1,9 @@
 # Changelog
 
+## [2020-03-29] 1.1.1
+
+- Fix for when config is not yet updated and `dependsOn`/`dependsOff` is not set
+
 ## [2020-03-29] 1.1.0
 
 - Added the button on/off dependencies

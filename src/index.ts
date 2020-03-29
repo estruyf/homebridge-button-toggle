@@ -56,8 +56,8 @@ class ButtonToggle {
     // Add the button to the registered devices
     ButtonToggle.registeredButtons.push({
       name: this.config.name,
-      dependsOn: this.config.dependsOn,
-      dependsOff: this.config.dependsOff,
+      dependsOn: this.config.dependsOn || [],
+      dependsOff: this.config.dependsOff || [],
       update: this.autoUpdate
     });
 
