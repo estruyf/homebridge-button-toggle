@@ -95,8 +95,8 @@ export interface HapLegacyTypes {
 export interface Hap {
   uuid: Accessories;
   AccessoryLoader: Accessories;
-  Characteristic: any;
-  Service: any;
+  Characteristic: HAPNodeJS.Characteristic;
+  Service: HAPNodeJS.Service;
 }
 
 export interface Accessories {

@@ -12,6 +12,32 @@
         "type": "string",
         "default": "Toggler",
         "required": true
+      },
+      "dependsOn": {
+        "title": "Activation dependency",
+        "description": "Names of the buttons it depends on to automatically turn on when all of them are active.",
+        "type": "array",
+        "items": {
+          "title": "Button Name",
+          "type": "string"
+        },
+        "default": []
+      },
+      "dependsOff": {
+        "title": "Deactivation dependency",
+        "description": "Names of the buttons it depends on to automatically turn off when all of them are inactive.",
+        "type": "array",
+        "items": {
+          "title": "Button Name",
+          "type": "string"
+        },
+        "default": []
+      },
+      "debug": {
+        "title": "Debug",
+        "type": "boolean",
+        "default": false,
+        "required": false
       }
     }
   },
