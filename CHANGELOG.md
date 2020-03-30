@@ -1,5 +1,10 @@
 # Changelog
 
+## [2020-03-29] 1.1.2
+
+- Fix for initial button state update
+- Added custom logger
+
 ## [2020-03-29] 1.1.1
 
 - Fix for when config is not yet updated and `dependsOn`/`dependsOff` is not set
