@@ -133,11 +133,15 @@ class ButtonToggle {
     this.log(this.name, turnOn, this.state, callback);
     
     if (turnOn && this.state) {
-      this.log('Switch is already ON, setting to OFF.');
-      this.service.getCharacteristic(Characteristic.On).updateValue(false);
+      this.log(`Switch is already ${this.state}, setting to ${!this.state}.`);
+      setTimeout(() => {
+        // setValue triggers another `set` event
+        this.service.getCharacteristic(Characteristic.On).setValue(false);
+      }, 250);
     } else {
       this.log(`Setting switch to ${turnOn}.`);
       this.state = turnOn;
+      // updateValue doesn't trigger any other `set` event
       this.service.getCharacteristic(Characteristic.On).updateValue(turnOn);
       await ButtonToggle.storage.setItem(this.name, turnOn);
       await ButtonToggle.trigger(this.name, turnOn);
