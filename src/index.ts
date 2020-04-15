@@ -1,6 +1,7 @@
 import persist from 'node-persist';
 import 'hap-nodejs';
 import { ButtonConfig, Homebridge, RegisteredButton } from './models';
+import { Logger } from './helpers';
 const packageJSON = require('../package.json');
 
 const HOMEBRIDGE_PLUGIN_NAME = "homebridge-button-toggle";
@@ -9,6 +10,9 @@ const HOMEBRIDGE_PLATFORM_NAME = "button-toggle";
 let Service: HAPNodeJS.Service;
 let Characteristic: HAPNodeJS.Characteristic;
 let HomebridgeAPI: any;
+
+// Global logger
+Logger.setPrefix(HOMEBRIDGE_PLUGIN_NAME);
 
 module.exports = (homebridge: Homebridge) => {
   console.log(`The ${HOMEBRIDGE_PLUGIN_NAME} plugin version is: ${packageJSON.version}. Installed on Homebridge version: ${homebridge.version}.`);
@@ -30,7 +34,6 @@ class ButtonToggle {
   private static registeredButtons: RegisteredButton[] = [];
 
   constructor(private log: any, private config: ButtonConfig) {
-    ButtonToggle.log = this.log;
     this.name = this.config.name;
     if (this.config.debug) { this.log("Homebridge", HomebridgeAPI); }
     this.service = new Service.Switch(this.name, null);
@@ -86,18 +89,18 @@ class ButtonToggle {
    * Global trigger which gets called when a button changes its state
    */
   private static trigger = async (name: string, state: boolean) => {
-    ButtonToggle.log(`Checking if there are other buttons which dependent on: ${name}`);
+    Logger.info(`[${name}]: Checking if there are other buttons which dependent on: ${name} for "${state ? 'On' : 'Off' }" state.`);
       
     // Retrieve all the button dependencies
     const btns = ButtonToggle.registeredButtons.filter(btn => state ? btn.dependsOn.includes(name) : btn.dependsOff.includes(name));
-    if (btns) {
-      ButtonToggle.log(`Following button(s) have a dependency: ${btns.map(b => b.name).join(', ')}`);
+    if (btns && btns.length > 0) {
+      Logger.info(`[${name}]: Following button(s) have a dependency: ${btns.map(b => b.name).join(', ')}`);
       
       // Verify each button to see if its state needs to be updated
       for (const btn of btns) {
         const crntBtnState = await ButtonToggle.storage.getItem(btn.name);
         
-        ButtonToggle.log(`The state of the dependency button (${btn.name}) is: ${crntBtnState}`);
+        Logger.info(`[${name}]: The state of the dependency button (${btn.name}) is: ${crntBtnState}`);
         
         let depBtnStates: boolean[] = [];
         if (!crntBtnState && state) {
@@ -107,13 +110,15 @@ class ButtonToggle {
           depBtnStates = await Promise.all(btn.dependsOff.map(async (name): Promise<boolean> => await ButtonToggle.storage.getItem(name)));
         }
 
-        ButtonToggle.log(`Other dependency button states are: ${depBtnStates.join(', ')}`);
+        Logger.info(`[${name}]: Other dependency button states are: ${depBtnStates.join(', ')}`);
           
         if (depBtnStates && depBtnStates.length > 0 && depBtnStates.filter(s => s === !state).length === 0) {
-          ButtonToggle.log(`The button its state will be updated`);
+          Logger.info(`[${name}]: The button its state will be updated`);
           btn.update(state);
         }
       }
+    } else {
+      Logger.info(`[${name}]: Button didn't have any "${state ? 'On' : 'Off' }" dependencies`);
     }
   }
 
@@ -130,7 +135,7 @@ class ButtonToggle {
    * Update the state of a button
    */
   private setState = async (turnOn: boolean, callback: () => void) => {
-    this.log(this.name, turnOn, this.state, callback);
+    this.log(`New state: ${turnOn} - Previous state: ${this.state} - Callback: ${!!callback}`);
     
     if (turnOn && this.state) {
       this.log(`Switch is already ${this.state}, setting to ${!this.state}.`);
