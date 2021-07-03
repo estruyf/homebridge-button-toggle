@@ -1,5 +1,9 @@
 # Changelog
 
+## [2021-07-03] 1.2.0
+
+- Allow you to create blinds switch
+
 ## [2020-03-29] 1.1.2
 
 - Fix for initial button state update
