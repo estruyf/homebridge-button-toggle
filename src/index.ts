@@ -36,7 +36,13 @@ class ButtonToggle {
   constructor(private log: any, private config: ButtonConfig) {
     this.name = this.config.name;
     if (this.config.debug) { this.log("Homebridge", HomebridgeAPI); }
-    this.service = new Service.Switch(this.name, null);
+    
+    if (this.config.type === "blinds") {
+      this.service = new Service.WindowCovering(this.name, this.config.type);
+    } else {
+      this.service = new Service.Switch(this.name, this.config.type);
+    }
+
     if (this.config.debug) { this.log("Service", this.service); }
     this.init();
   }
@@ -54,7 +60,11 @@ class ButtonToggle {
     });
     
     // Set a listener to the set event state
-    this.service.getCharacteristic(Characteristic.On).on('set', this.setState);
+    if (this.service.subtype === "blinds") {
+      this.service.getCharacteristic(Characteristic.TargetPosition).on('set', this.setState);
+    } else {
+      this.service.getCharacteristic(Characteristic.On).on('set', this.setState);
+    }
 
     // Add the button to the registered devices
     ButtonToggle.registeredButtons.push({
@@ -141,13 +151,21 @@ class ButtonToggle {
       this.log(`Switch is already ${this.state}, setting to ${!this.state}.`);
       setTimeout(() => {
         // setValue triggers another `set` event
-        this.service.getCharacteristic(Characteristic.On).setValue(false);
+        if (this.service.subtype === "blinds") {
+          this.service.getCharacteristic(Characteristic.PositionState).setValue(0);
+        } else {
+          this.service.getCharacteristic(Characteristic.On).setValue(false);
+        }
       }, 250);
     } else {
       this.log(`Setting switch to ${turnOn}.`);
       this.state = turnOn;
       // updateValue doesn't trigger any other `set` event
-      this.service.getCharacteristic(Characteristic.On).updateValue(turnOn);
+      if (this.service.subtype === "blinds") {
+        this.service.getCharacteristic(Characteristic.PositionState).updateValue(100);
+      } else {
+        this.service.getCharacteristic(Characteristic.On).updateValue(turnOn);
+      }
       await ButtonToggle.storage.setItem(this.name, turnOn);
       await ButtonToggle.trigger(this.name, turnOn);
     }

@@ -15,4 +15,8 @@ export interface ButtonConfig {
    * Optional: Debug per button (turn off in production)
    */ 
   debug?: boolean;
+  /**
+   * Optional: Specify the type of the button. 
+   */
+  type?: "button" | "blinds";
 }
