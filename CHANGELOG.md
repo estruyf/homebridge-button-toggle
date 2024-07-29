@@ -1,5 +1,9 @@
 # Changelog
 
+## [2024-07-24] 1.3.0
+
+- Updated dependencies
+
 ## [2021-07-03] 1.2.0
 
 - Allow you to create blinds switch

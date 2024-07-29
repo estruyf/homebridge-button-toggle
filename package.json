@@ -30,8 +30,8 @@
   },
   "devDependencies": {
     "@types/node-persist": "3.0.0",
-    "hap-nodejs": "0.4.51",
-    "homebridge": "0.4.53",
+    "hap-nodejs": "^0.4.53",
+    "homebridge": "^1.8.4",
     "typescript": "3.8.3"
   }
 }
